@@ -13,6 +13,7 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
 import android.widget.Toast;
 
 
@@ -20,9 +21,9 @@ public class MainActivity extends AppCompatActivity {
 
     SeekBar sb;
     ImageView imgview;
-    CheckBox checked1;
-    CheckBox checked;
+    CheckBox checked1, checked;
     MediaPlayer mPlayer;
+    TextView timePos, timeDur;
     Handler handler;
     Runnable runnable;
     private boolean isCurrentBackgroundBlue = true;
@@ -46,6 +47,8 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
+        timePos = (TextView) findViewById(R.id.timePos);
+        timeDur = (TextView) findViewById(R.id.timeDur);
         sb = (SeekBar) findViewById(R.id.seekbar);
         handler = new Handler();
         toast = (ImageButton) findViewById(R.id.showToast);
@@ -113,6 +116,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void sbPositioning() {
         sb.setProgress(mPlayer.getCurrentPosition());
+        int mPos = mPlayer.getCurrentPosition();
+        timePos.setText(mPos / 1000 + "s");
+        int mDur = mPlayer.getDuration();
+        timeDur.setText(mDur / 1000 + "s");
 
         if (mPlayer.isPlaying()) {
             runnable = new Runnable() {
@@ -121,9 +128,10 @@ public class MainActivity extends AppCompatActivity {
                     sbPositioning();
                 }
             };
-            handler.postDelayed(runnable, 1000);
+            handler.postDelayed(runnable, 1);
         }
     }
+
 
     @Override
     protected void onResume() {
@@ -157,7 +165,6 @@ public class MainActivity extends AppCompatActivity {
         startStopMedia();
         sbPositioning();
     }
-
 
     public void changeColor(View view) {
         if (imgview != null) {
