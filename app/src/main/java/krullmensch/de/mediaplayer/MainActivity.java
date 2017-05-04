@@ -13,10 +13,7 @@ import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
-import android.widget.TextView;
 import android.widget.Toast;
-
-import java.nio.channels.SelectionKey;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -26,6 +23,8 @@ public class MainActivity extends AppCompatActivity {
     CheckBox checked1;
     CheckBox checked;
     MediaPlayer mPlayer;
+    Handler handler;
+    Runnable runnable;
     private boolean isCurrentBackgroundBlue = true;
     private boolean paused = true;
     private ImageButton toast;
@@ -48,6 +47,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         sb = (SeekBar) findViewById(R.id.seekbar);
+        handler = new Handler();
         toast = (ImageButton) findViewById(R.id.showToast);
         imgview = (ImageView) findViewById(R.id.imgview);
         if (imgview != null) {
@@ -76,17 +76,66 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-    }
-    private void startStopMedia() {
         if (mPlayer == null) {
-            mPlayer = MediaPlayer.create(this, R.raw.music);
-        }
+            mPlayer = MediaPlayer.create(getApplicationContext(), R.raw.music);
+            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
+            sb.setMax(mPlayer.getDuration());
+
+            sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                @Override
+                public void onProgressChanged(SeekBar seekBar, int progress, boolean input) {
+                    if (input) {
+                        mPlayer.seekTo(progress);
+                    }
+                }
+
+                @Override
+                public void onStartTrackingTouch(SeekBar seekBar) {
+
+                }
+
+                @Override
+                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                }
+            });
+        }
+    }
+
+    private void startStopMedia() {
         if (mPlayer.isPlaying()) {
             mPlayer.pause();
         } else {
             mPlayer.start();
         }
+    }
+
+    private void sbPositioning() {
+        sb.setProgress(mPlayer.getCurrentPosition());
+
+        if (mPlayer.isPlaying()) {
+            runnable = new Runnable() {
+                @Override
+                public void run() {
+                    sbPositioning();
+                }
+            };
+            handler.postDelayed(runnable, 1000);
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        sbPositioning();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mPlayer.release();
+        handler.removeCallbacks(runnable);
     }
 
     private void changeIcon(View view) {
@@ -96,20 +145,17 @@ public class MainActivity extends AppCompatActivity {
             paused = false;
             icon = android.R.drawable.ic_media_pause;
 
-            if (sb != null) {
-                sb.setProgress(50);
-            }
         } else {
             paused = true;
             icon = android.R.drawable.ic_media_play;
-            sb.setProgress(100);
         }
         play.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), icon));
     }
 
     public void onPlayButtonPress(View view) {
-        startStopMedia();
         changeIcon(view);
+        startStopMedia();
+        sbPositioning();
     }
 
 
