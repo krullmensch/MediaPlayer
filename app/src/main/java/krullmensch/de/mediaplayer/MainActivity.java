@@ -70,9 +70,9 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 if (checked.isChecked()) {
-                    imgview.setImageResource(R.drawable.media_repeat);
+                    mPlayer.setLooping(true);
                 } else {
-                    imgview.setImageDrawable(null);
+                    mPlayer.setLooping(false);
                 }
             }
         });
