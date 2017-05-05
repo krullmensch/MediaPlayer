@@ -20,7 +20,7 @@
             />
 
         <CheckBox
-            android:id="@+id/checked"
+            android:id="@+id/checked1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_alignParentBottom="true"
@@ -32,7 +32,7 @@
 
 
         <CheckBox
-            android:id="@+id/checkBox1"
+            android:id="@+id/checked"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Repeat"
@@ -48,14 +48,53 @@
             app:srcCompat="@android:drawable/ic_dialog_info"/>
 
         <Button
-            android:id="@+id/button11"
+            android:id="@+id/change"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="Change"
+            android:onClick="changeA"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true" />
 
+        <ImageView
+            android:id="@+id/centerIcon"
+            android:layout_width="200dip"
+            android:layout_height="200dip"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true" />
+
+        <ImageView
+            android:id="@+id/centerIcon1"
+            android:layout_width="200dip"
+            android:layout_height="200dip"
+            android:layout_centerVertical="true"
+            android:layout_centerHorizontal="true"/>
+
     </RelativeLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/timePos"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingLeft="15dip"
+            android:textSize="20dip"
+            android:layout_weight="1"/>
+
+        <TextView
+            android:id="@+id/timeDur"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:paddingRight="15dip"
+            android:textSize="20dip"
+            android:gravity="right"/>
+
+    </LinearLayout>
 
     <SeekBar
         android:id="@+id/seekbar"
@@ -84,7 +123,7 @@
             android:layout_height="80dip"
             android:layout_margin="15dip"
             android:layout_weight="1"
-            android:onClick="changeIcon"
+            android:onClick="onPlayButtonPress"
             app:srcCompat="@android:drawable/ic_media_play" />/>
 
         <ImageButton

@@ -16,6 +16,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import static krullmensch.de.mediaplayer.R.drawable.media_pause;
+
 
 public class MainActivity extends AppCompatActivity {
 
@@ -34,19 +36,9 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         imgview = (ImageView) findViewById(R.id.centerIcon);
+        checked = (CheckBox) findViewById(R.id.checked);
         checked1 = (CheckBox) findViewById(R.id.checked1);
-        checked1.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (checked1.isChecked()) {
-                    imgview.setImageResource(R.drawable.media_shuffle);
-                } else {
-                    imgview.setImageDrawable(null);
-                }
-            }
-        });
         timePos = (TextView) findViewById(R.id.timePos);
         timeDur = (TextView) findViewById(R.id.timeDur);
         sb = (SeekBar) findViewById(R.id.seekbar);
@@ -68,7 +60,6 @@ public class MainActivity extends AppCompatActivity {
             });
         }
 
-        checked = (CheckBox) findViewById(R.id.checked);
         checked.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -114,29 +105,51 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    private void sbPositioning() {
+    private void sbPositioningAndTime() {
         sb.setProgress(mPlayer.getCurrentPosition());
         int mPos = mPlayer.getCurrentPosition();
-        timePos.setText(mPos / 1000 + "s");
+        timePos.setText(getTime(mPos));
         int mDur = mPlayer.getDuration();
-        timeDur.setText(mDur / 1000 + "s");
+        timeDur.setText(getTime(mDur));
+
 
         if (mPlayer.isPlaying()) {
             runnable = new Runnable() {
                 @Override
                 public void run() {
-                    sbPositioning();
+                    sbPositioningAndTime();
                 }
             };
             handler.postDelayed(runnable, 1);
         }
     }
 
+    public String getTime(double time) {
+        String finalTimerString = "";
+        String secondsString = "";
+
+        int hours = (int) (time / (1000 * 60 * 60));
+        int minutes = (int) (time % (1000 * 60 * 60)) / (1000 * 60);
+        int seconds = (int) ((time % (1000 * 60 * 60)) % (1000 * 60) / 1000);
+
+        if (hours > 0) {
+            finalTimerString = hours + ":";
+        }
+
+        if (seconds < 10) {
+            secondsString = "0" + seconds;
+        } else {
+            secondsString = "" + seconds;
+        }
+        finalTimerString = finalTimerString + minutes + ":" + secondsString;
+
+        return finalTimerString;
+    }
 
     @Override
     protected void onResume() {
         super.onResume();
-        sbPositioning();
+        sbPositioningAndTime();
     }
 
     @Override
@@ -151,11 +164,11 @@ public class MainActivity extends AppCompatActivity {
         int icon;
         if (paused) {
             paused = false;
-            icon = android.R.drawable.ic_media_pause;
+            icon = R.drawable.media_pause;
 
         } else {
             paused = true;
-            icon = android.R.drawable.ic_media_play;
+            icon = R.drawable.media_play;
         }
         play.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), icon));
     }
@@ -163,7 +176,7 @@ public class MainActivity extends AppCompatActivity {
     public void onPlayButtonPress(View view) {
         changeIcon(view);
         startStopMedia();
-        sbPositioning();
+        sbPositioningAndTime();
     }
 
     public void changeColor(View view) {

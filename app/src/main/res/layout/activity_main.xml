@@ -42,10 +42,14 @@
 
         <ImageButton
             android:id="@+id/showToast"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="75dip"
+            android:layout_height="75dip"
             android:layout_alignParentRight="true"
-            app:srcCompat="@android:drawable/ic_dialog_info"/>
+            android:background="@null"
+            android:clickable="true"
+            android:paddingRight="10dip"
+            android:paddingTop="10dip"
+            app:srcCompat="@drawable/info" />
 
         <Button
             android:id="@+id/change"
@@ -81,6 +85,9 @@
             android:id="@+id/timePos"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:paddingLeft="15dip"
+            android:textSize="20dip"
+            android:textColor="@android:color/white"
             android:layout_weight="1"/>
 
         <TextView
@@ -88,6 +95,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:paddingRight="15dip"
+            android:textSize="20dip"
+            android:textColor="@android:color/white"
             android:gravity="right"/>
 
     </LinearLayout>
@@ -111,7 +121,8 @@
             android:layout_margin="15dip"
             android:layout_weight="1"
             android:onClick="changeColor2"
-            app:srcCompat="@android:drawable/ic_media_previous"/>
+            app:srcCompat="@drawable/media_previous"
+            android:background="@null"/>
 
         <ImageButton
             android:id="@+id/play"
@@ -120,7 +131,8 @@
             android:layout_margin="15dip"
             android:layout_weight="1"
             android:onClick="onPlayButtonPress"
-            app:srcCompat="@android:drawable/ic_media_play" />/>
+            app:srcCompat="@drawable/media_play"
+            android:background="@null"/>
 
         <ImageButton
             android:id="@+id/next"
@@ -129,7 +141,8 @@
             android:layout_margin="15dip"
             android:layout_weight="1"
             android:onClick="changeColor"
-            app:srcCompat="@android:drawable/ic_media_next"/>
+            app:srcCompat="@drawable/media_next"
+            android:background="@null"/>
     </LinearLayout>
 
 </LinearLayout>
