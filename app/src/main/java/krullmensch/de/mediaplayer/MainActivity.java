@@ -3,6 +3,8 @@ package krullmensch.de.mediaplayer;
 import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -15,6 +17,9 @@ import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import java.io.File;
+import java.io.FileDescriptor;
 
 import static krullmensch.de.mediaplayer.R.drawable.media_pause;
 
@@ -71,29 +76,42 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         if (mPlayer == null) {
-            mPlayer = MediaPlayer.create(getApplicationContext(), R.raw.music);
-            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            File musicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+            if (musicDir.exists()) {
+                String[] songs = musicDir.list();
+                for (int i = 0; i < songs.length; i++) {
+                    System.out.println(songs[i]);
+                }
+                if (songs.length != 0) {
+                    File myMusicFile = new File(musicDir, songs[0]);
+                    if (myMusicFile.exists()) {
+                        Uri mySong = Uri.parse(myMusicFile.getAbsolutePath());
+                        mPlayer = MediaPlayer.create(this, mySong);
+                        if (mPlayer != null) {
+                            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                            sb.setMax(mPlayer.getDuration());
+                            sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+                                @Override
+                                public void onProgressChanged(SeekBar seekBar, int progress, boolean input) {
+                                    if (input) {
+                                        mPlayer.seekTo(progress);
+                                    }
+                                }
 
-            sb.setMax(mPlayer.getDuration());
+                                @Override
+                                public void onStartTrackingTouch(SeekBar seekBar) {
 
-            sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                @Override
-                public void onProgressChanged(SeekBar seekBar, int progress, boolean input) {
-                    if (input) {
-                        mPlayer.seekTo(progress);
+                                }
+
+                                @Override
+                                public void onStopTrackingTouch(SeekBar seekBar) {
+
+                                }
+                            });
+                        }
                     }
                 }
-
-                @Override
-                public void onStartTrackingTouch(SeekBar seekBar) {
-
-                }
-
-                @Override
-                public void onStopTrackingTouch(SeekBar seekBar) {
-
-                }
-            });
+            }
         }
     }
 
