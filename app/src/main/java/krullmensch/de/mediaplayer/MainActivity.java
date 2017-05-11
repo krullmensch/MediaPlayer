@@ -2,6 +2,7 @@ package krullmensch.de.mediaplayer;
 
 import android.content.Intent;
 import android.media.AudioManager;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Environment;
@@ -25,10 +26,11 @@ public class MainActivity extends AppCompatActivity {
 
     SeekBar sb;
     ImageView imgview;
+    TextView timePos, timeDur;
     CheckBox checked1, checked;
     MediaPlayer mPlayer;
-    TextView timePos, timeDur;
     Handler handler;
+    ImageButton play;
     Runnable runnable;
 
     private ImageButton toast;
@@ -42,24 +44,11 @@ public class MainActivity extends AppCompatActivity {
         checked1 = (CheckBox) findViewById(R.id.checked1);
         timePos = (TextView) findViewById(R.id.timePos);
         timeDur = (TextView) findViewById(R.id.timeDur);
+        play = (ImageButton) findViewById(R.id.play);
         sb = (SeekBar) findViewById(R.id.seekbar);
         handler = new Handler();
         toast = (ImageButton) findViewById(R.id.showToast);
-        imgview = (ImageView) findViewById(R.id.imgview);
-        if (imgview != null) {
-            imgview.setBackgroundResource(android.R.color.holo_blue_dark);
-            toast.setOnClickListener(new View.OnClickListener() {
 
-                @Override
-                public void onClick(View v) {
-
-                    Toast toast = Toast.makeText(getApplicationContext(),
-                            "INFORMATION", Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
-                }
-            });
-        }
 
         checked.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -78,7 +67,7 @@ public class MainActivity extends AppCompatActivity {
                     System.out.println(songList[i]);
                 }
                 if (songList.length != 0) {
-                    playSong(new File(musicDir, songList[currentFileIndex]));
+                    playSong(new File(musicDir, songList[currentFileIndex]), false);
                 }
             }
         }
@@ -87,8 +76,9 @@ public class MainActivity extends AppCompatActivity {
             // setting the onComplete listener for the current playing song
             mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
-                public void onCompletion(MediaPlayer mp) {
+                public void onCompletion(MediaPlayer mPlayer) {
                     playNext();
+                    sbPositioningAndTime();
                 }
             });
         }
@@ -99,6 +89,8 @@ public class MainActivity extends AppCompatActivity {
                 if (input) {
                     if (mPlayer != null) {
                         mPlayer.seekTo(progress);
+                        int mPos = mPlayer.getCurrentPosition();
+                        timePos.setText(getTime(mPos));
                     }
                 }
             }
@@ -121,31 +113,31 @@ public class MainActivity extends AppCompatActivity {
     private String[] songList;
     private int currentFileIndex = 0;
 
-    private void playNext() {
+    public void playNext() {
         int newIndex = currentFileIndex + 1;
-        if (songList.length < newIndex) {
+        if (songList.length > newIndex) {
             currentFileIndex = newIndex;
-        } else {
-            currentFileIndex = 0;
-        }
-        File f = new File(musicDir, songList[newIndex]);
-        playSong(f);
-        mPlayer.start();
-    }
-
-    private void playPrev() {
-        int newIndex = currentFileIndex - 1;
-        if (songList.length < newIndex) {
-            currentFileIndex = newIndex;
+            sbPositioningAndTime();
         } else {
             currentFileIndex = 0;
         }
         File f = new File(musicDir, songList[currentFileIndex]);
-        playSong(f);
-        mPlayer.start();
+        playSong(f, mPlayer.isPlaying());
     }
 
-    private void playSong(File song) {
+    public void playPrev() {
+        int newIndex = currentFileIndex - 1;
+        if (songList.length < newIndex) {
+            currentFileIndex = newIndex;
+            sbPositioningAndTime();
+        } else {
+            currentFileIndex = 0;
+        }
+        File f = new File(musicDir, songList[currentFileIndex]);
+        playSong(f, mPlayer.isPlaying());
+    }
+
+    private void playSong(File song, boolean doPlay) {
         if (song != null && song.exists()) {
             Uri mySong = Uri.parse(song.getAbsolutePath());
             if (mPlayer != null && mPlayer.isPlaying()) {
@@ -155,17 +147,47 @@ public class MainActivity extends AppCompatActivity {
             if (mPlayer != null) {
                 mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
                 sb.setMax(mPlayer.getDuration());
+                showSongMeta(song);
             }
+            if (doPlay) {
+                mPlayer.start();
+                changeIcon(play);
+            }
+            sbPositioningAndTime();
         }
     }
 
     private void startStopMedia() {
         if (mPlayer.isPlaying()) {
             mPlayer.pause();
+            sbPositioningAndTime();
         } else {
             mPlayer.start();
+            sbPositioningAndTime();
         }
     }
+
+    public String titleName;
+
+    private void showSongMeta(File mp3File) {
+        if (mPlayer != null) {
+            MediaMetadataRetriever mmr = new MediaMetadataRetriever();
+            mmr.setDataSource(mp3File.getAbsolutePath());
+            titleName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
+            toast.setOnClickListener(new View.OnClickListener() {
+
+                @Override
+                public void onClick(View v) {
+
+                    Toast toast = Toast.makeText(getApplicationContext(),
+                            titleName, Toast.LENGTH_SHORT);
+                    toast.setGravity(Gravity.CENTER, 0, 0);
+                    toast.show();
+                }
+            });
+        }
+    }
+
 
     private void sbPositioningAndTime() {
         sb.setProgress(mPlayer.getCurrentPosition());
@@ -182,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
                     sbPositioningAndTime();
                 }
             };
-            handler.postDelayed(runnable, 1);
+            handler.postDelayed(runnable, 0);
         }
     }
 
@@ -225,18 +247,17 @@ public class MainActivity extends AppCompatActivity {
         ImageButton play = (ImageButton) view;
         int icon;
         if (mPlayer.isPlaying()) {
-            icon = R.drawable.media_play;
-
+            icon = R.drawable.media_pause;
         } else {
             mPlayer.isPlaying();
-            icon = R.drawable.media_pause;
+            icon = R.drawable.media_play;
         }
         play.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), icon));
     }
 
     public void onPlayButtonPress(View view) {
-        changeIcon(view);
         startStopMedia();
+        changeIcon(view);
         sbPositioningAndTime();
     }
 
