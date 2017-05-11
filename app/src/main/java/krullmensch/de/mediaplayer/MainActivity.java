@@ -19,9 +19,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.File;
-import java.io.FileDescriptor;
-
-import static krullmensch.de.mediaplayer.R.drawable.media_pause;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -33,8 +30,7 @@ public class MainActivity extends AppCompatActivity {
     TextView timePos, timeDur;
     Handler handler;
     Runnable runnable;
-    private boolean isCurrentBackgroundBlue = true;
-    private boolean paused = true;
+
     private ImageButton toast;
 
     @Override
@@ -76,41 +72,89 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         if (mPlayer == null) {
-            File musicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
             if (musicDir.exists()) {
-                String[] songs = musicDir.list();
-                for (int i = 0; i < songs.length; i++) {
-                    System.out.println(songs[i]);
+                songList = musicDir.list();
+                for (int i = 0; i < songList.length; i++) {
+                    System.out.println(songList[i]);
                 }
-                if (songs.length != 0) {
-                    File myMusicFile = new File(musicDir, songs[0]);
-                    if (myMusicFile.exists()) {
-                        Uri mySong = Uri.parse(myMusicFile.getAbsolutePath());
-                        mPlayer = MediaPlayer.create(this, mySong);
-                        if (mPlayer != null) {
-                            mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                            sb.setMax(mPlayer.getDuration());
-                            sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
-                                @Override
-                                public void onProgressChanged(SeekBar seekBar, int progress, boolean input) {
-                                    if (input) {
-                                        mPlayer.seekTo(progress);
-                                    }
-                                }
+                if (songList.length != 0) {
+                    playSong(new File(musicDir, songList[currentFileIndex]));
+                }
+            }
+        }
 
-                                @Override
-                                public void onStartTrackingTouch(SeekBar seekBar) {
+        if (mPlayer != null) {
+            // setting the onComplete listener for the current playing song
+            mPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mp) {
+                    playNext();
+                }
+            });
+        }
 
-                                }
-
-                                @Override
-                                public void onStopTrackingTouch(SeekBar seekBar) {
-
-                                }
-                            });
-                        }
+        sb.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean input) {
+                if (input) {
+                    if (mPlayer != null) {
+                        mPlayer.seekTo(progress);
                     }
                 }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+
+            }
+        });
+    }
+
+    private File musicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+
+
+    private String[] songList;
+    private int currentFileIndex = 0;
+
+    private void playNext() {
+        int newIndex = currentFileIndex + 1;
+        if (songList.length < newIndex) {
+            currentFileIndex = newIndex;
+        } else {
+            currentFileIndex = 0;
+        }
+        File f = new File(musicDir, songList[newIndex]);
+        playSong(f);
+        mPlayer.start();
+    }
+
+    private void playPrev() {
+        int newIndex = currentFileIndex - 1;
+        if (songList.length < newIndex) {
+            currentFileIndex = newIndex;
+        } else {
+            currentFileIndex = 0;
+        }
+        File f = new File(musicDir, songList[currentFileIndex]);
+        playSong(f);
+        mPlayer.start();
+    }
+
+    private void playSong(File song) {
+        if (song != null && song.exists()) {
+            Uri mySong = Uri.parse(song.getAbsolutePath());
+            if (mPlayer != null && mPlayer.isPlaying()) {
+                mPlayer.stop();
+            }
+            mPlayer = MediaPlayer.create(this, mySong);
+            if (mPlayer != null) {
+                mPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                sb.setMax(mPlayer.getDuration());
             }
         }
     }
@@ -180,13 +224,12 @@ public class MainActivity extends AppCompatActivity {
     private void changeIcon(View view) {
         ImageButton play = (ImageButton) view;
         int icon;
-        if (paused) {
-            paused = false;
-            icon = R.drawable.media_pause;
+        if (mPlayer.isPlaying()) {
+            icon = R.drawable.media_play;
 
         } else {
-            paused = true;
-            icon = R.drawable.media_play;
+            mPlayer.isPlaying();
+            icon = R.drawable.media_pause;
         }
         play.setImageDrawable(ContextCompat.getDrawable(getApplicationContext(), icon));
     }
@@ -197,28 +240,12 @@ public class MainActivity extends AppCompatActivity {
         sbPositioningAndTime();
     }
 
-    public void changeColor(View view) {
-        if (imgview != null) {
-            if (isCurrentBackgroundBlue) {
-                imgview.setBackgroundResource(android.R.color.holo_orange_dark);
-                isCurrentBackgroundBlue = false;
-            } else {
-                imgview.setBackgroundResource(android.R.color.holo_blue_dark);
-                isCurrentBackgroundBlue = true;
-            }
-        }
+    public void nextSong(View view) {
+        playNext();
     }
 
-    public void changeColor2(View view) {
-        if (imgview != null) {
-            if (isCurrentBackgroundBlue) {
-                imgview.setBackgroundResource(android.R.color.holo_orange_dark);
-                isCurrentBackgroundBlue = false;
-            } else {
-                imgview.setBackgroundResource(android.R.color.holo_blue_dark);
-                isCurrentBackgroundBlue = true;
-            }
-        }
+    public void prevSong(View view) {
+        playPrev();
     }
 
     public void changeA(View view) {

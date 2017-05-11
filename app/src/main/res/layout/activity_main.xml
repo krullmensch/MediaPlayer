@@ -119,7 +119,7 @@
             android:layout_height="80dip"
             android:layout_margin="15dip"
             android:layout_weight="1"
-            android:onClick="changeColor2"
+            android:onClick="prevSong"
             app:srcCompat="@drawable/media_previous"
             android:background="@null"/>
 
@@ -139,7 +139,7 @@
             android:layout_height="80dip"
             android:layout_margin="15dip"
             android:layout_weight="1"
-            android:onClick="changeColor"
+            android:onClick="nextSong"
             app:srcCompat="@drawable/media_next"
             android:background="@null"/>
     </LinearLayout>
