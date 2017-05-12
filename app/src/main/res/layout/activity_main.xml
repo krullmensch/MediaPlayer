@@ -46,17 +46,44 @@
             android:layout_height="75dip"
             android:layout_alignParentRight="true"
             android:background="@null"
-            android:clickable="true"
+            android:onClick="showInfo"
             android:paddingRight="10dip"
             android:paddingTop="10dip"
             app:srcCompat="@drawable/info" />
 
+        <TextView
+            android:id="@+id/songName"
+            android:layout_width="match_parent"
+            android:layout_height="50dip"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="100dip"
+            android:gravity="top|center_horizontal"
+            android:textSize="30dip"/>
+
+        <TextView
+            android:id="@+id/albumName"
+            android:layout_width="match_parent"
+            android:layout_height="50dip"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="150dip"
+            android:gravity="center"
+            android:textSize="25dip"/>
+
+        <TextView
+            android:id="@+id/aArtistName"
+            android:layout_width="match_parent"
+            android:layout_height="50dip"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="200dip"
+            android:gravity="center"
+            android:textSize="20dip"/>
+
         <Button
-            android:id="@+id/change"
+            android:id="@+id/charts"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Change"
-            android:onClick="changeA"
+            android:text="CHARTS"
+            android:onClick="charts"
             android:layout_alignParentTop="true"
             android:layout_alignParentStart="true" />
 

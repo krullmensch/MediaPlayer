@@ -12,6 +12,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.ImageButton;
 import android.widget.ImageView;
@@ -31,9 +32,10 @@ public class MainActivity extends AppCompatActivity {
     MediaPlayer mPlayer;
     Handler handler;
     ImageButton play;
+    Button charts;
+    TextView songName, aArtistName, albumName;
     Runnable runnable;
 
-    private ImageButton toast;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,10 +47,12 @@ public class MainActivity extends AppCompatActivity {
         timePos = (TextView) findViewById(R.id.timePos);
         timeDur = (TextView) findViewById(R.id.timeDur);
         play = (ImageButton) findViewById(R.id.play);
+        charts = (Button) findViewById(R.id.charts);
+        songName = (TextView) findViewById(R.id.songName);
+        aArtistName = (TextView) findViewById(R.id.aArtistName);
+        albumName = (TextView) findViewById(R.id.albumName);
         sb = (SeekBar) findViewById(R.id.seekbar);
         handler = new Handler();
-        toast = (ImageButton) findViewById(R.id.showToast);
-
 
         checked.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -105,6 +109,7 @@ public class MainActivity extends AppCompatActivity {
 
             }
         });
+
     }
 
     private File musicDir = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
@@ -117,22 +122,21 @@ public class MainActivity extends AppCompatActivity {
         int newIndex = currentFileIndex + 1;
         if (songList.length > newIndex) {
             currentFileIndex = newIndex;
-            sbPositioningAndTime();
         } else {
             currentFileIndex = 0;
         }
+        sbPositioningAndTime();
         File f = new File(musicDir, songList[currentFileIndex]);
         playSong(f, mPlayer.isPlaying());
     }
 
     public void playPrev() {
-        int newIndex = currentFileIndex - 1;
-        if (songList.length < newIndex) {
-            currentFileIndex = newIndex;
-            sbPositioningAndTime();
+        if (currentFileIndex == 0) {
+            currentFileIndex = songList.length - 1;
         } else {
-            currentFileIndex = 0;
+            currentFileIndex--;
         }
+        sbPositioningAndTime();
         File f = new File(musicDir, songList[currentFileIndex]);
         playSong(f, mPlayer.isPlaying());
     }
@@ -168,23 +172,19 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public String titleName;
+    public String artistName;
+    public String album;
 
     private void showSongMeta(File mp3File) {
         if (mPlayer != null) {
             MediaMetadataRetriever mmr = new MediaMetadataRetriever();
             mmr.setDataSource(mp3File.getAbsolutePath());
             titleName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_TITLE);
-            toast.setOnClickListener(new View.OnClickListener() {
-
-                @Override
-                public void onClick(View v) {
-
-                    Toast toast = Toast.makeText(getApplicationContext(),
-                            titleName, Toast.LENGTH_SHORT);
-                    toast.setGravity(Gravity.CENTER, 0, 0);
-                    toast.show();
-                }
-            });
+            songName.setText(titleName);
+            artistName = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUMARTIST);
+            aArtistName.setText(artistName);
+            album = mmr.extractMetadata(MediaMetadataRetriever.METADATA_KEY_ALBUM);
+            albumName.setText(album);
         }
     }
 
@@ -204,7 +204,7 @@ public class MainActivity extends AppCompatActivity {
                     sbPositioningAndTime();
                 }
             };
-            handler.postDelayed(runnable, 0);
+            handler.postDelayed(runnable, 500);
         }
     }
 
@@ -269,9 +269,15 @@ public class MainActivity extends AppCompatActivity {
         playPrev();
     }
 
-    public void changeA(View view) {
-        Intent intent = new Intent(getApplicationContext(), Activity2.class);
+    public void charts(View view) {
+        Intent intent = new Intent(getApplicationContext(), chartsActivity.class);
         startActivity(intent);
+    }
+
+    public void showInfo(View view) {
+        Toast toast = Toast.makeText(getBaseContext(), "Made by Marvin Krullmann at Arvato" ,Toast.LENGTH_SHORT);
+        toast.setGravity(Gravity.CENTER, 0, 0);
+        toast.show();
     }
 }
 
